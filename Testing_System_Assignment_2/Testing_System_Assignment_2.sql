@@ -1,0 +1,91 @@
+DROP DATABASE IF EXISTS Testing_System_Assignment_1;
+CREATE DATABASE Testing_System_Assignment_1;
+USE Testing_System_Assignment_1;
+
+DROP DATABASE IF EXISTS Department;
+CREATE TABLE Department(
+	Department_ID 			TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    Department_Name 		VARCHAR(50) UNIQUE KEY NOT NULL
+    );
+    
+DROP DATABASE IF EXISTS `Position`;
+CREATE TABLE `Position`(
+	Position_ID 			TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    Position_Name 			VARCHAR(50) NOT NULL
+    );
+
+DROP DATABASE IF EXISTS `Account`;
+CREATE TABLE `Account`(
+	Account_ID 				INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    Email 					VARCHAR(30) UNIQUE KEY NOT NULL,
+    Username				VARCHAR(30) UNIQUE KEY NOT NULL,
+    Fullname				VARCHAR(30) NOT NULL,
+    Department_ID 			TINYINT UNSIGNED NOT NULL REFERENCES Department(Department_ID) ,
+    Position_ID 			TINYINT UNSIGNED NOT NULL REFERENCES `Position`(Position_ID),
+    Create_Date				DATE
+    );
+    
+DROP DATABASE IF EXISTS `Group`;
+CREATE TABLE `Group`(
+	Group_ID 				TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	Group_name				VARCHAR(30) UNIQUE KEY NOT NULL,
+    Creator_ID 				INT UNSIGNED NOT NULL REFERENCES `Account`(Account_ID),
+    Create_Date				DATE 
+    );
+
+DROP DATABASE IF EXISTS Group_Account;
+CREATE TABLE Group_Account(
+	Group_ID 				TINYINT UNSIGNED NOT NULL REFERENCES `Group`(Group_ID),
+	Account_ID 				INT UNSIGNED NOT NULL REFERENCES `Account`(Account_ID) ,
+    Join_Date				DATE,
+    PRIMARY KEY(Group_ID, Account_ID)
+    );
+
+DROP DATABASE IF EXISTS Type_Question;
+CREATE TABLE Type_Question(
+	Type_ID 				TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	Type_Name				ENUM('Essay','Multiple-Choice') NOT NULL
+    );
+
+DROP DATABASE IF EXISTS Category_Question;
+CREATE TABLE Category_Question(
+	Category_ID 			TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+	Category_Name			VARCHAR(30) UNIQUE KEY NOT NULL
+    );
+
+DROP DATABASE IF EXISTS Question;
+CREATE TABLE Question(
+	Question_ID 			SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, 
+    Content					VARCHAR(30)  NOT NULL,
+	Category_ID				VARCHAR(30) NOT NULL REFERENCES Category_Question(Category_ID),
+    Type_ID 				SMALLINT UNSIGNED NOT NULL REFERENCES Type_Question(Type_ID),
+    Creator_ID 				INT UNSIGNED NOT NULL REFERENCES `Account`(Account_ID) ,
+    Create_Date				DATETIME DEFAULT NOW()
+    );
+
+DROP DATABASE IF EXISTS Answer;
+CREATE TABLE Answer(
+	Answer_ID 				SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    Content					VARCHAR(200) NOT NULL ,
+    Question_ID 			SMALLINT UNSIGNED NOT NULL REFERENCES Question(Question_ID),
+    isCorrect				BIT DEFAULT(0)
+    );
+
+DROP DATABASE IF EXISTS Exam;
+CREATE TABLE Exam(
+	Exam_ID 				TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    `Code`					VARCHAR(30) UNIQUE KEY NOT NULL,
+	Title					VARCHAR(200) NOT NULL,
+    Category_ID				INT UNSIGNED  NOT NULL REFERENCES Category_Question(Category_ID),
+    Duration				TINYINT NOT NULL,
+    Creator_ID 				INT UNSIGNED NOT NULL REFERENCES `Account`(Account_ID),
+    Create_Date				DATETIME DEFAULT NOW()
+    );
+
+DROP DATABASE IF EXISTS Exam_Question;
+CREATE TABLE Exam_Question(
+	Exam_ID 				TINYINT UNSIGNED NOT NULL REFERENCES Exam(Exam_ID), 
+	Question_ID				SMALLINT UNSIGNED NOT NULL REFERENCES Question(Question_ID), 
+    PRIMARY KEY(Exam_ID,Question_ID)
+    );
+
